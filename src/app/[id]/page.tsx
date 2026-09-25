@@ -162,6 +162,7 @@ export default function OrderDetailsPage() {
           };
 
   const timeline = getTimelineState(order);
+  const shouldShowSupport = Boolean(order.issue) || isTrackingUnavailable;
 
   const actions = isDelayed
     ? [
@@ -172,12 +173,8 @@ export default function OrderDetailsPage() {
       ? [
           { label: "Report Delivery Issue", primary: true },
           { label: "Contact Support", primary: false },
-          { label: "View Delivery Details", primary: false },
         ]
-      : [
-          { label: "View Order Details", primary: true },
-          { label: "Contact Support", primary: false },
-        ];
+      : [{ label: "Contact Support", primary: false }];
 
   return (
     <main className="min-h-screen bg-[#f5f9ff] px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
@@ -509,18 +506,23 @@ export default function OrderDetailsPage() {
                   </button>
                 )}
 
-                {actions.map((action) => (
-                  <button
-                    key={action.label}
-                    className={`w-full rounded-full px-4 py-3 text-sm font-semibold transition ${
-                      action.primary
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "border border-blue-200 bg-white text-blue-700 hover:bg-blue-50"
-                    }`}
-                  >
-                    {action.label}
-                  </button>
-                ))}
+                {actions
+                  .filter(
+                    (action) =>
+                      action.label !== "Contact Support" || shouldShowSupport,
+                  )
+                  .map((action) => (
+                    <button
+                      key={action.label}
+                      className={`w-full rounded-full px-4 py-3 text-sm font-semibold transition ${
+                        action.primary
+                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          : "border border-blue-200 bg-white text-blue-700 hover:bg-blue-50"
+                      }`}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
               </div>
             </aside>
           </div>
