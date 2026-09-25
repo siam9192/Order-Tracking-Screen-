@@ -1,6 +1,5 @@
 import OrderCard from "../components/OrderCard";
 import orders from "../orders";
-import { Order } from "../types/order.type";
 
 export default function Home() {
   return (
@@ -22,7 +21,7 @@ export default function Home() {
 
         <div className="space-y-5">
           {orders.map((order) => (
-            <OrderCard key={order.id} order={order as Order} />
+            <OrderCard key={order.id} order={order} />
           ))}
         </div>
       </div>

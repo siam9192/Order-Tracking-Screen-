@@ -1,13 +1,31 @@
 import Link from "next/link";
-import type { Order } from "../types/order.type";
+import { OrderIssue, OrderStatus, type Order } from "../types/order.type";
 
-const statusStyles: Record<string, string> = {
-  processing: "bg-blue-100 text-blue-700 ring-blue-200",
-  shipped: "bg-cyan-100 text-cyan-700 ring-cyan-200",
-  out_for_delivery: "bg-indigo-100 text-indigo-700 ring-indigo-200",
-  delayed: "bg-amber-100 text-amber-700 ring-amber-200",
-  delivered_not_received: "bg-violet-100 text-violet-700 ring-violet-200",
-  delivered: "bg-emerald-100 text-emerald-700 ring-emerald-200",
+const statusStyles: Record<OrderStatus, string> = {
+  [OrderStatus.Processing]: "bg-blue-100 text-blue-700 ring-blue-200",
+  [OrderStatus.Shipped]: "bg-cyan-100 text-cyan-700 ring-cyan-200",
+  [OrderStatus.OutForDelivery]: "bg-indigo-100 text-indigo-700 ring-indigo-200",
+  [OrderStatus.Delivered]: "bg-emerald-100 text-emerald-700 ring-emerald-200",
+};
+
+const getStatusLabel = (order: Order) => {
+  if (order.issue === OrderIssue.Delayed) return "Delivery Delayed";
+  if (order.issue === OrderIssue.DeliveredNotReceived)
+    return "Package Not Received";
+  if (order.trackingTimeline.length === 0) return "Tracking Not Available";
+
+  switch (order.status) {
+    case OrderStatus.Processing:
+      return "Processing";
+    case OrderStatus.Shipped:
+      return "Shipped";
+    case OrderStatus.OutForDelivery:
+      return "Out for Delivery";
+    case OrderStatus.Delivered:
+      return "Delivered";
+    default:
+      return "Order";
+  }
 };
 
 const formatDate = (value: string) =>
@@ -26,7 +44,14 @@ const formatPrice = (amount: number) =>
 
 export default function OrderCard({ order }: { order: Order }) {
   const statusClass =
-    statusStyles[order.status] ?? "bg-slate-100 text-slate-700 ring-slate-200";
+    order.issue === OrderIssue.Delayed
+      ? "bg-amber-100 text-amber-700 ring-amber-200"
+      : order.issue === OrderIssue.DeliveredNotReceived
+        ? "bg-violet-100 text-violet-700 ring-violet-200"
+        : order.trackingTimeline.length === 0
+          ? "bg-slate-100 text-slate-700 ring-slate-200"
+          : (statusStyles[order.status] ??
+            "bg-slate-100 text-slate-700 ring-slate-200");
 
   return (
     <article className="overflow-hidden rounded-[28px] border border-blue-100 bg-white/85 shadow-[0_20px_60px_-30px_rgba(37,99,235,0.35)] backdrop-blur-sm">
@@ -46,7 +71,7 @@ export default function OrderCard({ order }: { order: Order }) {
               <span
                 className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${statusClass}`}
               >
-                {order.statusLabel}
+                {getStatusLabel(order)}
               </span>
             </div>
 
@@ -68,9 +93,9 @@ export default function OrderCard({ order }: { order: Order }) {
               Delivery
             </p>
             <p className="mt-1 text-sm font-semibold text-slate-800">
-              {order.estimatedDeliveryTime
-                ? `Est. ${order.estimatedDelivery} · ${order.estimatedDeliveryTime}`
-                : `Est. ${order.estimatedDelivery}`}
+              {order.estimatedDelivery
+                ? `Est. ${order.estimatedDelivery}`
+                : "Awaiting estimate"}
             </p>
           </div>
 

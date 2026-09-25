@@ -2,18 +2,12 @@ export enum OrderStatus {
   Processing = "processing",
   Shipped = "shipped",
   OutForDelivery = "out_for_delivery",
-  Delayed = "delayed",
-  DeliveredNotReceived = "delivered_not_received",
   Delivered = "delivered",
 }
 
-export enum OrderStatusLabel {
-  Processing = "Processing",
-  Shipped = "Shipped",
-  OutForDelivery = "Out for Delivery",
-  Delayed = "Delivery Delayed",
-  DeliveredNotReceived = "Delivered but Not Received",
-  Delivered = "Delivered",
+export enum OrderIssue {
+  Delayed = "delayed",
+  DeliveredNotReceived = "delivered_not_received",
 }
 
 export type OrderProduct = {
@@ -24,15 +18,37 @@ export type OrderProduct = {
   image: string;
 };
 
+export type TrackingTimelineEntry = {
+  status: OrderStatus;
+  timestamp: string;
+  description?: string;
+};
+
 export type Order = {
   id: string;
+
+  // Actual delivery status
   status: OrderStatus;
-  statusLabel: OrderStatusLabel;
+
+  // Special situation reported by the system/customer
+  issue?: OrderIssue;
+
+  // An empty timeline means tracking information is not available yet
+  trackingTimeline: TrackingTimelineEntry[];
+
   orderDate: string;
-  estimatedDelivery: string;
+
+  // Normal estimated delivery
+  estimatedDelivery?: string;
   estimatedDeliveryTime?: string;
+
+  // Used when the order is delayed
   newEstimatedDelivery?: string;
+
+  // Used when the order has been delivered
   deliveredAt?: string;
+
   product: OrderProduct;
+
   total: number;
 };
